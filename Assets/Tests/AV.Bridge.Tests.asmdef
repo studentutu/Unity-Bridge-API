@@ -1,0 +1,19 @@
+{
+    "name": "AV.Bridge.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GUID:5d8586f4fad334c43a06d81f20497b66"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Mono.Cecil.dll",
+        "Mono.Cecil.Mdb.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
