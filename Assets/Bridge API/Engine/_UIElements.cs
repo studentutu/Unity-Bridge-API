@@ -29,6 +29,21 @@ namespace AV.Bridge._UIElements
         }
     }
     
+    
+    public struct _InlineStyleAccess
+    {
+        public IStyle obj => x; InlineStyleAccess x;
+        public _InlineStyleAccess(IStyle x) => this.x = (InlineStyleAccess)x;
+        
+        public VisualElement ve => x.ve;
+        public ICustomStyle computedStyle => x.ve.computedStyle;
+        
+        public void ApplyInlineStyles(ICustomStyle computedStyle)
+        {
+            x.ApplyInlineStyles((ComputedStyle)computedStyle);
+        }
+    }
+    
     public struct _VisualElement
     {
         public VisualElement obj => x; VisualElement x;
@@ -137,7 +152,7 @@ namespace AV.Bridge._UIElements
                 panel.hierarchyChanged += GetHierarchyEvent(treeEvt);
             
             // During window.OnEnable, rootVisualElement.panel might be null, so we need to register during IPanelChangedEvent
-            ve.OnCallback<IPanelChangedEvent>(evt =>
+            ve.OnEvent<IPanelChangedEvent>(evt =>
             {
                 if (evt is AttachToPanelEvent attachEvt)
                 {
@@ -151,21 +166,21 @@ namespace AV.Bridge._UIElements
         }
         
         
-        public static void OnCallback<T>(this VE e, EventCallback<T> callback, TrickleDown useTrickleDown = TrickleDown.NoTrickleDown)
+        public static void OnEvent<T>(this VE e, EventCallback<T> callback, TrickleDown useTrickleDown = TrickleDown.NoTrickleDown)
         {
             e._().RegisterCallback(callback, useTrickleDown);
         }
-        public static void OnAnyEvent(this VE e, EventCallback<EventBase> evt) => e.OnCallback(evt);
-        public static void OnValueChange(this VE e, EventCallback<IChangeEvent> evt) => e.OnCallback(evt);
+        public static void OnAnyEvent(this VE e, EventCallback<EventBase> evt) => e.OnEvent(evt);
+        public static void OnValueChange(this VE e, EventCallback<IChangeEvent> evt) => e.OnEvent(evt);
         public static void OnValueChange<T>(this VE e, EventCallback<ChangeEvent<T>> evt) => e.RegisterCallback(evt);
         public static void OnLayoutChange(this VE e, EventCallback<GeometryChangedEvent> evt) => e.RegisterCallback(evt);
-        public static void OnPanelChange(this VE e, EventCallback<IPanelChangedEvent> evt) => e.OnCallback(evt);
-        public static void OnPointerEvent(this VE e, EventCallback<IPointerEvent> evt) => e.OnCallback(evt);
-        public static void OnMouseEvent(this VE e, EventCallback<IMouseEvent> evt) => e.OnCallback(evt);
-        public static void OnFocusEvent(this VE e, EventCallback<IFocusEvent> evt) => e.OnCallback(evt);
-        public static void OnDragEvent(this VE e, EventCallback<IDragAndDropEvent> evt) => e.OnCallback(evt);
-        public static void OnCommandEvent(this VE e, EventCallback<ICommandEvent> evt) => e.OnCallback(evt);
-        public static void OnKeyboardEvent(this VE e, EventCallback<IKeyboardEvent> evt) => e.OnCallback(evt);
+        public static void OnPanelChange(this VE e, EventCallback<IPanelChangedEvent> evt) => e.OnEvent(evt);
+        public static void OnPointerEvent(this VE e, EventCallback<IPointerEvent> evt) => e.OnEvent(evt);
+        public static void OnMouseEvent(this VE e, EventCallback<IMouseEvent> evt) => e.OnEvent(evt);
+        public static void OnFocusEvent(this VE e, EventCallback<IFocusEvent> evt) => e.OnEvent(evt);
+        public static void OnDragEvent(this VE e, EventCallback<IDragAndDropEvent> evt) => e.OnEvent(evt);
+        public static void OnCommandEvent(this VE e, EventCallback<ICommandEvent> evt) => e.OnEvent(evt);
+        public static void OnKeyboardEvent(this VE e, EventCallback<IKeyboardEvent> evt) => e.OnEvent(evt);
     }
 }
 #endif // [ASMDEFEX] DO NOT REMOVE THIS LINE MANUALLY.

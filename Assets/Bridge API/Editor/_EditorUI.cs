@@ -6,20 +6,34 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
+using UnityEditorInternal;
 using Object = UnityEngine.Object;
 
 namespace AV.Bridge
 {
-    public class _EditorUI
+    public static class _EditorUI
     {
+        public static readonly string ProjectPath;
+        public static readonly string ProjectAppDataPath;
+        public static readonly string UserAppDataFolder = InternalEditorUtility.userAppDataFolder;
+        
+        static _EditorUI()
+        {
+            ProjectPath = Application.dataPath;
+            ProjectPath = ProjectPath.Remove(ProjectPath.Length - 6, 6);
+            ProjectAppDataPath = Application.persistentDataPath;
+        }
+        
         public static void GetCommonDarkStyleSheet() => UIElementsEditorUtility.GetCommonDarkStyleSheet();
         public static void GetCommonLightStyleSheet() => UIElementsEditorUtility.GetCommonLightStyleSheet();
         public static void AddDefaultStyleSheets(VisualElement ve) => UIElementsEditorUtility.AddDefaultEditorStyleSheets(ve);
         
         
-        public static void MarkHotRegion(Rect rect)
+        public static void MarkHotRegion(Rect rect) => MarkHotRegion(GUIView.current, rect);
+        public static void MarkHotRegion(Object guiView, Rect rect)
         {
-            new _GUIView(GUIView.current).MarkHotRegion(rect);
+            GUIClip.UnclipToWindow_Rect_Injected(ref rect, out var hotRect);
+            ((GUIView)guiView).MarkHotRegion_Injected(ref hotRect);
         }
     }
 }

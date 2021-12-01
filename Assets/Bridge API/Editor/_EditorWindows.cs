@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace AV.Bridge._EditorWindows
 {
@@ -14,8 +15,8 @@ namespace AV.Bridge._EditorWindows
     
     public struct _EditorElement
     {
-        public object obj => x; EditorElement x;
-        public _EditorElement(VisualElement editorElement) => this.x = (EditorElement)editorElement;
+        public VisualElement obj => x; EditorElement x;
+        public _EditorElement(VisualElement editorElement) => this.x = editorElement as EditorElement;
         
         public Editor editor => x.editor;
         public int editorIndex => x.m_EditorIndex;
@@ -32,7 +33,7 @@ namespace AV.Bridge._EditorWindows
         public _GUIView guiView => new _GUIView(x.m_Parent);
         public _View view => new _View(x.m_Parent);
         public _DockArea dockArea => new _DockArea(x.m_Parent);
-        public _SplitView splitView => new _SplitView((SplitView)x.m_Parent.parent);
+        public _SplitView splitView => new _SplitView(x.m_Parent.parent as SplitView);
         
         public bool docked => x.docked;
 
@@ -102,8 +103,8 @@ namespace AV.Bridge._EditorWindows
     
     public struct _InspectorWindow
     {
-        public object obj => x; PropertyEditor x;
-        public _InspectorWindow(EditorWindow propertyEditor) => x = (PropertyEditor)propertyEditor;
+        public EditorWindow obj => x; PropertyEditor x;
+        public _InspectorWindow(EditorWindow propertyEditor) => x = propertyEditor as PropertyEditor;
         
         public InspectorMode inspectorMode { get => x.inspectorMode; set => x.inspectorMode = value; }
         public ActiveEditorTracker tracker => x.tracker;
@@ -111,8 +112,10 @@ namespace AV.Bridge._EditorWindows
     
     public struct _HostView
     {
-        public object obj => x; HostView x;
-        public _HostView(object hostView) => x = (HostView)hostView;
+        public Object obj => x; HostView x;
+        public _HostView(object hostView) => x = hostView as HostView;
+        
+        public static float genericMenuLeftOffset => HostView.genericMenuLeftOffset;
         
         public EditorWindow actualView { get => x.actualView; set => x.actualView = value; }
         
@@ -145,8 +148,8 @@ namespace AV.Bridge._EditorWindows
     
     public struct _GUIView
     {
-        public object obj => x; GUIView x;
-        public _GUIView(object guiView) => x = (GUIView)guiView;
+        public Object obj => x; GUIView x;
+        public _GUIView(object guiView) => x = guiView as GUIView;
         
         public VisualElement visualTree => x.windowBackend.visualTree as VisualElement;
         
@@ -155,8 +158,8 @@ namespace AV.Bridge._EditorWindows
     
     public struct _ContainerWindow
     {
-        public object obj => x; ContainerWindow x;
-        public _ContainerWindow(object view) => x = (ContainerWindow)view;
+        public Object obj => x; ContainerWindow x;
+        public _ContainerWindow(object view) => x = view as ContainerWindow;
         
         public _View rootView { get => new _View(x.rootView); set => x.rootView = (View)value.obj; }
         public _SplitView rootSplitView => new _SplitView(x.rootSplitView);
@@ -164,20 +167,32 @@ namespace AV.Bridge._EditorWindows
     
     public struct _DockArea
     {
-        public object obj => x; DockArea x;
-        public _DockArea(object dockArea) => x = (DockArea)dockArea;
+        public Object obj => x; DockArea x;
+        public _DockArea(object dockArea) => x = dockArea as DockArea;
+        
+        public float m_TotalTabWidth { get => x.m_TotalTabWidth; set => x.m_TotalTabWidth = value; }
+        public Rect m_TabAreaRect { get => x.m_TabAreaRect; set => x.m_TabAreaRect = value; }
     }
     
     public struct _SplitView
     {
-        public object obj => x; SplitView x;
-        public _SplitView(object view) => x = (SplitView)view;
+        public Object obj => x; SplitView x;
+        public _SplitView(object view) => x = view as SplitView;
     }
     
     public struct _View
     {
-        public object obj => x; View x;
-        public _View(object view) => x = (View)view;
+        public Object obj => x; View x;
+        public _View(object view) => x = view as View;
+        
+        public _GUIView guiView => new _GUIView(x);
+        public _HostView hostView => new _HostView(x);
+        public _DockArea dockArea => new _DockArea(x);
+        
+        public bool isMaximizedHostView => x is MaximizedHostView;
+        public bool isHostView => x is HostView;
+        public bool isGUIView => x is GUIView;
+        public bool isDockArea => x is DockArea;
         
         public Rect position { get => x.position; set => x.position = value; }
         public Vector2 size { get => x.position.size; set => x.position = new Rect(x.position.position, value); } 

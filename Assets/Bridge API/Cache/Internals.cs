@@ -1,9 +1,12 @@
 #if IGNORE_ACCESS_CHECKS // [ASMDEFEX] DO NOT REMOVE THIS LINE MANUALLY.
 using System;
 using System.Reflection;
+#if UNITY_EDITOR
 using UnityEditor;
-using UnityEngine;
+using UnityEditor.IMGUI.Controls;
 using UnityEditor.UIElements;
+#endif
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace AV.Bridge 
@@ -53,6 +56,14 @@ namespace AV.Bridge
 
             public readonly Type ShaderGraphWindow = typeof(UnityEditor.ShaderGraph.Drawing.MaterialGraphEditWindow);
             //public readonly Type ShaderGraphWindow = Type("Unity.ShaderGraph.Editor", "UnityEditor.ShaderGraph.Drawing.MaterialGraphEditWindow");
+            
+            public readonly Type SceneHierarchy = typeof(SceneHierarchy);
+            public readonly Type SceneHierarchyWindow = typeof(SceneHierarchyWindow);
+            public readonly Type TreeViewController = typeof(TreeViewController);
+            public readonly Type TreeViewGUI = typeof(GameObjectTreeViewDataSource);
+            public readonly Type TreeViewDataSource = typeof(GameObjectTreeViewDataSource);
+            public readonly Type GameObjectTreeViewGUI = typeof(GameObjectTreeViewGUI);
+            public readonly Type GameObjectTreeViewDataSource = typeof(GameObjectTreeViewDataSource);
         }
         #endif
     }

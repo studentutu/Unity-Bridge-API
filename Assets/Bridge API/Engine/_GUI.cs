@@ -38,10 +38,10 @@ namespace AV.Bridge
     }
     
     public static class _GUI
-    {   
-        static Material blendMat;
-        static Material roundedRectMat;
-        static Material roundedRectColorPerBorderMat;
+    {
+        static readonly Material blendMat;
+        static readonly Material roundedRectMat;
+        static readonly Material roundedRectColorPerBorderMat;
         
         static _GUI()
         {
@@ -50,51 +50,76 @@ namespace AV.Bridge
             roundedRectColorPerBorderMat = GUI.roundedRectWithColorPerBorderMaterial;
         }
         
-        public static void DrawTexture(Rect rect, Texture image, Color color, Vector4 corners = default, bool smoothCorners = false
+        public static void OnProcessEvent(Func<int, IntPtr, bool> func, _ActionInject inject)
+        {
+            if (inject == _ActionInject.Before) { var evt = GUIUtility.processEvent; GUIUtility.processEvent = evt; GUIUtility.processEvent += evt; }
+            if (inject == _ActionInject.Override) GUIUtility.processEvent = func;
+            if (inject == _ActionInject.After) GUIUtility.processEvent += func;
+        }
+
+        public static Vector2 GUIToScreenPoint(Vector2 guiPoint) => GUIUtility.InternalWindowToScreenPoint(GUIClip.UnclipToWindow(guiPoint));
+        public static Rect GUIToScreenPoint(Rect guiRect)
+        {
+            var screenPoint = GUIToScreenPoint(new Vector2(guiRect.x, guiRect.y));
+            guiRect.x = screenPoint.x;
+            guiRect.y = screenPoint.y; return guiRect;
+        }
+        public static Vector2 ScreenToGUIPoint(Vector2 screenPoint) => GUIClip.ClipToWindow(GUIUtility.InternalScreenToWindowPoint(screenPoint));
+        public static Rect ScreenToGUIPoint(Rect screenRect)
+        {
+            var guiPoint = ScreenToGUIPoint(new Vector2(screenRect.x, screenRect.y));
+            screenRect.x = guiPoint.x;
+            screenRect.y = guiPoint.y; return screenRect;
+        }
+        
+        // Avoids String.memcpy, String.memset
+        static Internal_DrawTextureArguments args = new Internal_DrawTextureArguments { sourceRect = StretchToFillRect };
+        static readonly Rect StretchToFillRect = new Rect { m_Width = 1f, m_Height = 1f };
+        
+        
+        /// width - LTRB (left, top, right, bottom),
+        /// corners - TRBL (top-left, top-right, bottom-right, bottom-left)
+        
+        public static void DrawTexture(in Rect rect, Texture image, in Color color, in Vector4 corners = default, bool smoothCorners = false
             /*, ScaleMode scaleMode = ScaleMode.StretchToFill*/)
         {
-            var mat = corners == default ? blendMat : roundedRectMat;
-            var args = new Internal_DrawTextureArguments
-            {
-                color = color,
-                borderWidths = default,
-                cornerRadiuses = corners,
-                texture = image,
-                smoothCorners = smoothCorners,
-                mat = mat
-            };
-            //GUI.CalculateScaledTextureRects(rect, scaleMode, 0, ref args.screenRect, ref args.sourceRect);
             args.screenRect = rect;
-            args.sourceRect = new Rect(0f, 0f, 1f, 1f);
+            args.sourceRect = StretchToFillRect;
+            
+            args.borderWidths = default; args.cornerRadiuses = corners; args.smoothCorners = smoothCorners;
+            
+            args.color = color; args.texture = image; args.mat = smoothCorners ? roundedRectMat : blendMat;
             Graphics.Internal_DrawTexture(ref args);
         }
         
-        
-        public static void DrawBorder(Rect rect, Texture image, Color32 color, Vector4 corners, Vector4 widths, 
-            Color32 left = default, Color32 top = default, Color32 right = default, Color32 bottom = default)
+        public static void DrawTexture(Rect rect, Texture image, Color color, Vector4 widths, Vector4 corners)
         {
-            var perBorderColor = FastUtil.ColorEquals(left, top) || 
-                                 FastUtil.ColorEquals(left, right) || 
-                                 FastUtil.ColorEquals(left, bottom);
-            var mat = perBorderColor ? roundedRectColorPerBorderMat : roundedRectMat;
+            var mat = roundedRectMat;
             
-            var args = new Internal_DrawTextureArguments
-            {
-                color = color,
-                borderWidths = widths,
-                cornerRadiuses = corners,
-                texture = image,
-                smoothCorners = true,
-                mat = mat
-            };
-            if (perBorderColor)
-            {
-                args.leftBorderColor = FastUtil.ColorMultiply(left, color);
-                args.topBorderColor = FastUtil.ColorMultiply(top, color);
-                args.rightBorderColor = FastUtil.ColorMultiply(right, color);
-                args.bottomBorderColor = FastUtil.ColorMultiply(bottom, color);
-            }
-            GUI.CalculateScaledTextureRects(rect, ScaleMode.StretchToFill, 0, ref args.screenRect, ref args.sourceRect);
+            args.screenRect = rect;
+            args.sourceRect = StretchToFillRect;
+            
+            args.borderWidths = widths; args.cornerRadiuses = corners; args.smoothCorners = true;
+            
+            args.color = color; args.mat = mat; args.texture = image;
+            
+            //GUI.CalculateScaledTextureRects(rect, ScaleMode.StretchToFill, 0, ref args.screenRect, ref args.sourceRect);
+            Graphics.Internal_DrawTexture(ref args);
+        }
+        public static void DrawTexture(Rect rect, Texture image, Vector4 widths, Vector4 corners, in Color t, in Color r, in Color b, in Color l)
+        {
+            var mat = roundedRectColorPerBorderMat;
+            
+            args.screenRect = rect;
+            args.sourceRect = StretchToFillRect;
+            
+            args.borderWidths = widths; args.cornerRadiuses = corners; args.smoothCorners = true;
+            
+            args.color = t; args.mat = mat; args.texture = image;
+            
+            args.topBorderColor = t; args.rightBorderColor = r; args.bottomBorderColor = b; args.leftBorderColor = l;
+                
+            //GUI.CalculateScaledTextureRects(rect, ScaleMode.StretchToFill, 0, ref args.screenRect, ref args.sourceRect);
             Graphics.Internal_DrawTexture(ref args);
         }
     }
