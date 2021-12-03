@@ -6,7 +6,7 @@ Forget about Reflection or Lambda.Compile :)
 ![image](https://user-images.githubusercontent.com/29812914/143566401-65120fa8-2aaf-4e13-9edc-e6ac257d0969.png)
 
 ## Optimizations
-[_OptimizedStylePainter](Assets/Bridge%20API/Editor/_OptimizedStylePainter.cs) is ___x2.5~ times faster___ than StylePainter (which draws the entire Editor IMGUI), 
+[_OptimizedStylePainter](Assets/Bridge%20API/Editor/_OptimizedStylePainter.cs) is ___x2.5~ times faster___ than StylePainter (which draws all GUIStyles), 
 [use F3 to enable it](Assets/Tests/StylePainterTest.cs).
 
 
