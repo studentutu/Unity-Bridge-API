@@ -5,6 +5,11 @@ Forget about Reflection or Lambda.Compile :)
 
 ![image](https://user-images.githubusercontent.com/29812914/143566401-65120fa8-2aaf-4e13-9edc-e6ac257d0969.png)
 
+## Optimizations
+[_OptimizedStylePainter](Assets/Bridge%20API/Editor/_OptimizedStylePainter.cs) is ___x2.5~ times faster___ than StylePainter (which draws the entire Editor IMGUI), 
+[use F3 to enable it](Assets/Tests/StylePainterTest.cs).
+
+
 ## How to Build
 
 ![image](https://user-images.githubusercontent.com/29812914/143575401-cde3047e-1f8b-4a61-ad4f-d4bdadac5072.png)
@@ -37,12 +42,25 @@ namespace AV.Bridge._UIElements
     // _ClassName, must be struct to avoid GC alloc
     public struct _VisualElement
     {
-        public VisualElement obj => x; VisualElement x; // public object reference for later usage
+        public VisualElement obj => x; VisualElement x; // public obj reference for later usage
         public _VisualElement(VisualElement x) => this.x = x;
     
         public Shader standardShader { get => panel.standardShader; set => panel.standardShader = value; } 
         public Rect layout { get => x.layout; set => x.layout = value; }
         public Rect worldClip => x.worldClip;
+    }
+    public struct _GameObjectTreeViewItem
+    {
+        // obj should be of assignable public type (can be an interface), or just object
+        public TreeViewItem obj => x; GameObjectTreeViewItem x;
+        // if it needs to be nullable, use x as T instead of (T)x
+        public _GameObjectTreeViewItem(TreeViewItem item) => this.x = item as GameObjectTreeViewItem;
+        
+        // use ref return, in cases where field can be used directly
+        public ref Scene scene => ref x.m_UnityScene;
+        public ref int colorCode => ref x.m_ColorCode;
+        public ref Object objectPPTR => ref x.m_ObjectPPTR;
+        public ref Texture2D overlayIcon => ref x.m_OverlayIcon;
     }
 }
 
@@ -95,4 +113,6 @@ foreach (var evt in rootVisualElement._().Callbacks())
 
 
 ## References
+[mob-sakai/OpenSesameCompilerForUnity](https://github.com/mob-sakai/OpenSesameCompilerForUnity)
+
 [No InternalsVisibleTo, no problem – bypassing C# visibility rules with Roslyn](https://www.strathweb.com/2018/10/no-internalvisibleto-no-problem-bypassing-c-visibility-rules-with-roslyn/)
